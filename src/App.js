@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import axios from "axios";
 
 // import Todos from "./components/Todos";
 //import MirageServer from "./mirage/index";
@@ -10,16 +11,18 @@ function App() {
   let [image, setImage] = useState(null);
   let [getImage, setgetImage] = useState(null);
 
+  const [file, setFile] = useState(null);
+
   useEffect(() => {
-    fetch("/apis")
-      .then((res) => res.json())
-      .then((data) => console.log(data))
+    axios
+      .get("http://localhost:4000/apis")
+      .then((res) => console.log(res))
       .catch((e) => console.log("eerror"));
   }, []);
 
   const saveImage = (e) => {
     console.log(e.target.files[0], e.target.files[0].name);
-    setgetImage(e.target.files[0]);
+    setFile(e.target.files[0]);
   };
 
   // const saveImage = (e) => {
@@ -38,25 +41,36 @@ function App() {
   //   reader.readAsBinaryString(fileObject);
   // };
 
-  const addImage = () => {
+  const addImage = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("myImage", file);
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data",
+      },
+    };
+    axios
+      .post("http://localhost:4000/upload", formData, config)
+      .then((response) => {
+        console.log("The file is successfully uploaded");
+      })
+      .catch((e) => console.log("error"));
     console.log("sending...", getImage);
 
-    const fd = new FormData();
-    fd.append("myImage", getImage, getImage.name);
-    console.log(fd);
+    // const fd = new FormData();
+    // fd.append("myImage", getImage);
+    // console.log(fd);
 
-    fetch("http://localhost:4000/upload", {
-      method: "POST",
-      body: fd,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-      .then((res) => {
-        console.log(res.json());
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log("error"));
+    // fetch("http://localhost:4000/upload", {
+    //   method: "POST",
+    //   body: fd,
+    // })
+    //   .then((res) => {
+    //     console.log(res.json());
+    //   })
+    //   .then((res) => console.log(res))
+    //   .catch((e) => console.log("error"));
   };
 
   return (
@@ -64,9 +78,11 @@ function App() {
       <header className="App-header">
         <p>todo</p>
 
-        <input name="myImage" type="file" onChange={saveImage} />
+        <form onSubmit={addImage} encType="multipart/form-data">
+          <input name="myImage" type="file" onChange={saveImage} />
 
-        <button onClick={addImage}>Add image</button>
+          <button type="submit">Add image</button>
+        </form>
       </header>
     </div>
   );
