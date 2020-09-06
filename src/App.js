@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 import FormData from "./components/FormikForm";
+import FileBase from "react-file-base64";
 
 // import Todos from "./components/Todos";
 //import MirageServer from "./mirage/index";
@@ -11,6 +12,8 @@ import FormData from "./components/FormikForm";
 function App() {
   let [image, setImage] = useState(null);
   let [getImage, setgetImage] = useState(null);
+  let [baseImage, setbaseImage] = useState(null);
+  let [realImg, setrealImg] = useState(null);
 
   const [file, setFile] = useState(null);
 
@@ -74,6 +77,30 @@ function App() {
     //   .catch((e) => console.log("error"));
   };
 
+  const getBaseFile = (files) => {
+    setbaseImage(files.base64.toString());
+    // console.log(files.base64.toString());
+
+    // let thumb = new Buffer(files.base64.toString().data).toString("base64");
+    // // console.log(thumb);
+    // console.log("done");
+    // setrealImg(thumb);
+
+    let imageObj = {
+      imageName: "base-image-" + Date.now(),
+      imageData: files.base64.toString(),
+    };
+
+    axios
+      .post("http://localhost:4000/uploadbase", imageObj)
+      .then((response) => {
+        console.log("The file is successfully uploaded", response);
+
+        setrealImg(response.data.newImage.imageData);
+      })
+      .catch((e) => console.log("error"));
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -86,6 +113,13 @@ function App() {
         </form>
 
         <FormData />
+
+        <div>
+          <h4>Process Using Base64</h4>
+          <FileBase type="file" onDone={getBaseFile} />
+        </div>
+
+        <img src={realImg} alt="hello" />
       </header>
     </div>
   );
