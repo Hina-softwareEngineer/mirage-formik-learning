@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import FormData from "./components/FormikForm";
 
 // import Todos from "./components/Todos";
 //import MirageServer from "./mirage/index";
@@ -83,6 +84,8 @@ function App() {
 
           <button type="submit">Add image</button>
         </form>
+
+        <FormData />
       </header>
     </div>
   );
