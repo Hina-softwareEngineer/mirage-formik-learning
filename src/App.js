@@ -29,6 +29,10 @@ function App() {
     setFile(e.target.files[0]);
   };
 
+  const updateProgressBarValue = (value) => {
+    console.log("value :", value);
+  };
+
   // const saveImage = (e) => {
   //   console.log(e.target.file, e.target.files[0]);
   //   let selectedImage = e.target.files[0];
@@ -92,7 +96,14 @@ function App() {
     };
 
     axios
-      .post("http://localhost:4000/uploadbase", imageObj)
+      .post("http://localhost:4000/uploadbase", imageObj, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable) {
+            console.log(progressEvent.loaded + " " + progressEvent.total);
+            updateProgressBarValue(progressEvent);
+          }
+        },
+      })
       .then((response) => {
         console.log("The file is successfully uploaded", response);
 
