@@ -15,14 +15,57 @@ function App() {
   let [baseImage, setbaseImage] = useState(null);
   let [realImg, setrealImg] = useState(null);
 
+  let [drag, setDrag] = useState(null);
+  let [dragging, setDragging] = useState(0);
+
+  let dropRef = React.createRef();
+
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:4000/apis")
-      .then((res) => console.log(res))
-      .catch((e) => console.log("eerror"));
+    console.log("get request");
+    let div = dropRef.current;
+    div.addEventListener("dragenter", handleDragIn);
+    div.addEventListener("dragleave", handleDragOut);
+    div.addEventListener("dragover", handleDrag);
+    div.addEventListener("drop", handleDrop);
+
+    // axios
+    //   .get("http://localhost:4000/apis")
+    //   .then((res) => console.log(res))
+    //   .catch((e) => console.log("eerror"));
   }, []);
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(dragging++);
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setDrag(true);
+    }
+  };
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(dragging--);
+    if (this.dragCounter === 0) {
+      setDrag(false);
+    }
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDrag(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      this.props.handleDrop(e.dataTransfer.files);
+      e.dataTransfer.clearData();
+      setDragging(0);
+    }
+  };
 
   const saveImage = (e) => {
     console.log(e.target.files[0], e.target.files[0].name);
@@ -131,6 +174,48 @@ function App() {
         </div>
 
         <img src={realImg} alt="hello" />
+
+        <div
+          ref={dropRef}
+          style={{
+            display: "inline-block",
+            position: "relative",
+            background: "blue",
+          }}
+        >
+          {drag && (
+            <div
+              style={{
+                border: "dashed grey 4px",
+                backgroundColor: "rgba(255,255,255,.8)",
+                position: "absolute",
+                width: "500px",
+                height: "500px",
+                background: "red",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: 0,
+                  left: 0,
+                  textAlign: "center",
+                  color: "grey",
+                  fontSize: 36,
+                }}
+              >
+                <div>drop here :</div>
+              </div>
+              Drop here
+            </div>
+          )}
+        </div>
       </header>
     </div>
   );
